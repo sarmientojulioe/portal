@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Portal de Aplicaciones — American Advisor</title>
+  <style>
+    :root{
+      --azul:#216AA0; --azul-2:#2884C7; --navy:#22355B;
+      --bg:#EDEDED; --card:#FFFFFF; --muted:#6b7280;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; min-height:100vh; background:var(--bg); color:var(--navy);
+      font-family:system-ui,"Segoe UI",Roboto,sans-serif;
+      display:flex; flex-direction:column;
+    }
+    header{
+      padding:48px 24px 8px; text-align:center;
+    }
+    header h1{margin:0; font-size:30px; font-weight:700; letter-spacing:.4px}
+    header .sub{margin-top:8px; color:var(--muted); font-size:15px}
+    main{flex:1; display:flex; align-items:center; justify-content:center; padding:40px 24px}
+    .grid{
+      display:grid; gap:26px; width:100%; max-width:980px;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    }
+    a.card{
+      position:relative; display:block; padding:34px 26px; border-radius:18px;
+      background:var(--card); text-decoration:none; color:var(--navy);
+      box-shadow:0 8px 24px rgba(34,53,91,.10);
+      transition:transform .12s ease, box-shadow .12s ease;
+      border-top:5px solid var(--accent,var(--azul));
+    }
+    a.card:hover{transform:translateY(-5px); box-shadow:0 14px 32px rgba(34,53,91,.16)}
+    a.card.disabled{opacity:.55; pointer-events:none; filter:grayscale(.3)}
+    .ico{font-size:50px; line-height:1; display:block; margin-bottom:14px}
+    .name{font-size:21px; font-weight:700}
+    .desc{font-size:13.5px; color:var(--muted); margin-top:6px}
+    .badge{
+      position:absolute; top:16px; right:16px; font-size:10.5px; font-weight:700;
+      letter-spacing:.5px; text-transform:uppercase; padding:4px 9px; border-radius:999px;
+      background:#EAF2F8; color:var(--azul);
+    }
+    .badge.dev{background:#FFF4E5; color:#B26A00}
+    .badge.off{background:#F1F1F1; color:#888}
+    footer{padding:18px; text-align:center; color:var(--muted); font-size:12.5px}
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Portal de Aplicaciones</h1>
+    <div class="sub">American Advisor · entorno de desarrollo</div>
+  </header>
+
+  <main><div class="grid" id="grid"></div></main>
+
+  <footer>Para sumar una app: editá el registro <code>APPS</code> en este archivo y agregá su <code>location</code> en nginx.</footer>
+
+  <script>
+    // ── Registro de aplicaciones ────────────────────────────────────────────
+    // estado: "ok" (productiva) · "dev" (en desarrollo) · "off" (deshabilitada)
+    const APPS = [
+      {
+        key: "cotizaciones",
+        name: "Cotizaciones",
+        desc: "Solicitudes, catálogo y precios",
+        icon: "💵",
+        path: "/cotizaciones/",
+        accent: "#2884C7",
+        estado: "dev",
+      },
+      {
+        key: "rrhh",
+        name: "RRHH",
+        desc: "Indicadores y gestión de personal",
+        icon: "🏢",
+        path: "/rrhh/",
+        accent: "#216AA0",
+        estado: "dev",
+      },
+    ];
+
+    const ETIQUETA = { ok: "Activa", dev: "En desarrollo", off: "Deshabilitada" };
+
+    const grid = document.getElementById("grid");
+    for (const app of APPS) {
+      const a = document.createElement("a");
+      a.className = "card" + (app.estado === "off" ? " disabled" : "");
+      a.href = app.path;
+      a.style.setProperty("--accent", app.accent || "#216AA0");
+      a.innerHTML = `
+        <span class="badge ${app.estado}">${ETIQUETA[app.estado] || ""}</span>
+        <span class="ico">${app.icon}</span>
+        <div class="name">${app.name}</div>
+        <div class="desc">${app.desc}</div>`;
+      grid.appendChild(a);
+    }
+  </script>
+</body>
+</html>

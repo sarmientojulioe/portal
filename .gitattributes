@@ -1,0 +1,4 @@
+# Scripts y configs deben ir con saltos de línea LF para correr en Linux.
+*.sh   text eol=lf
+*.conf text eol=lf
+deploy/*.service text eol=lf
