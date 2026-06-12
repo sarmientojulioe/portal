@@ -1,101 +1,65 @@
 # Deploy del Portal
 
-El portal es **estático** (lo sirve nginx) y concentra el ruteo a todas las apps.
-No tiene proceso propio: solo archivos + configuración de nginx. Cada app corre en
-su propio puerto local y se publica bajo un subpath.
+El portal es un **sitio estático** (un menú) servido por nginx en su propio
+subdominio. **No proxea las apps**: cada app vive en su propio
+`<app>.americanad.ar` y el portal solo enlaza.
 
-## Mapa de puertos
+```
+portal.americanad.ar         → /var/www/portal (este menú)
+cotizaciones.americanad.ar   → app Cotizaciones
+rrhh.americanad.ar           → app RRHH
+flota.americanad.ar          → app Control de Flota
+inspecciones.americanad.ar   → app Inspecciones (Easypanel)
+```
 
-| App | Subpath | Puerto | Stack | Unit |
-|---|---|---|---|---|
-| Cotizaciones | `/cotizaciones/` | 8501 | Streamlit | en repo COTIZACIONES |
-| RRHH | `/rrhh/` | 8502 | Streamlit | en repo RRHH |
-| Control de Flota | `/flota/` | 8503 | Streamlit | `services/flota-app.service` |
-| Certificaciones | `/certificaciones/` | 8504 | Streamlit (+ backend) | `services/certificaciones-app.service` |
-| Inspecciones | https://inspecciones.americanad.ar | — | Streamlit (externa) | la tarjeta enlaza al dominio; no se proxea |
-| Informes Médicos | `/informes/` | 8506 | Streamlit | `services/informes-app.service` |
-| ~~8505~~ | — | libre | — | (liberado al ser Inspecciones externa) |
-| Capacitaciones | `/capacitaciones/` | 8507 | Streamlit (+ FastAPI) | `services/capacitaciones-app.service` |
-| Asistente | `/asistente/` | — | PHP | *próximamente* |
-| Campus / Moodle | `/campus/` | — | Flask | *próximamente* |
-| Salud (HIS) | `/salud/` | — | Django | *próximamente* |
-| ANMAT / Trazamed | `/anmat/` | — | .NET | *próximamente* |
+## Infraestructura (resumen)
 
-> Los units de Cotizaciones y RRHH viven en **sus** repos (ya desplegados). Los 5
-> nuevos se versionan acá en `deploy/services/` porque esos repos no tienen git propio.
+| Servidor | IP | Rol |
+|---|---|---|
+| VPS nginx | `165.227.80.93` | Reverse-proxy + SSL de los subdominios `*.americanad.ar` |
+| Host de apps | `172.16.18.101` (túnel WireGuard) | Donde corren las apps Streamlit (puertos 85xx) |
+| Easypanel | `167.71.125.132` | Apps dockerizadas con auto-deploy (Inspecciones) |
+| Plesk/IIS | `190.105.235.107` | Sitios `*.americanad.com.ar` + redirecciones 301 |
 
-## 1. Instalar el portal (menú + ruteo nginx)
+DNS de `*.americanad.ar` en **DonWeb** (registros A → `165.227.80.93`).
+
+## 1. Publicar el portal
 
 ```bash
-cd /root
-git clone https://github.com/sarmientojulioe/portal.git portal
+cd /root && git clone https://github.com/sarmientojulioe/portal.git portal
 cd /root/portal
-sudo bash deploy/install.sh          # publica el menú, instala nginx, valida y recarga
+sudo bash deploy/install.sh
+# DNS:  A  portal.americanad.ar -> 165.227.80.93
+sudo certbot --nginx -d portal.americanad.ar
 ```
 
-Editá `server_name` en `/etc/nginx/sites-available/portal` si tenés dominio.
+Para actualizar el menú: `git pull` + `sudo bash deploy/install.sh`.
 
-## 2. Desplegar cada app Streamlit nueva
+## 2. Publicar una app en su subdominio
 
-Patrón idéntico para las 5 (cambian carpeta/puerto). Ejemplo con **Flota**:
+Patrón (documentado en `deploy/template-subdominio.conf`):
 
-```bash
-# Traer el código a /root/<app>  (git clone o copia)
-cd /root && git clone <URL-o-copia> flota
-cd /root/flota
-python3 -m venv .venv
-.venv/bin/pip install -r requirements.txt
-# Si la app necesita credenciales/DB, crear su .env / secrets aquí.
+1. **DNS** en DonWeb: `A  <app>.americanad.ar → 165.227.80.93`.
+2. Copiar `template-subdominio.conf` a `/etc/nginx/sites-available/<app>` y
+   reemplazar `SUBDOMINIO`, `IP_APP`, `PUERTO`.
+3. `ln -s` a `sites-enabled` + `nginx -t` + `reload`.
+4. `sudo certbot --nginx -d <app>.americanad.ar`.
+5. Pasar la tarjeta de `estado:"dev"` a `"ok"` en `site/index.html` (y
+   `git pull` + `install.sh` para refrescar el menú).
 
-# Instalar el servicio (unit versionado en el portal)
-sudo cp /root/portal/deploy/services/flota-app.service /etc/systemd/system/
-sudo systemctl daemon-reload
-sudo systemctl enable --now flota-app
-ss -tlnp | grep 8503                 # debe escuchar en 127.0.0.1:8503
-```
+> La app en sí corre en el host de apps (`172.16.18.101`) como servicio propio
+> (systemd/docker), escuchando en su puerto, **sin** baseUrlPath (se sirve en la
+> raíz de su subdominio). El service de cada app vive en SU repo.
 
-Rutas/carpeta por app (ver cada `.service` para el detalle exacto):
+## Estado actual
 
-| App | clonar en | WorkingDirectory | requirements |
-|---|---|---|---|
-| Flota | `/root/flota` | `/root/flota` | `requirements.txt` (raíz) |
-| Certificaciones | `/root/certificaciones` | `/root/certificaciones/frontend` | revisar `frontend/` o raíz |
-| Informes | `/root/informes` | `/root/informes/CENTRO MEDICO` | en esa carpeta |
-| Capacitaciones | `/root/capacitaciones` | `/root/capacitaciones/frontend` | `frontend/` |
-
-### Dependencias de backend (importante)
-
-- **Certificaciones** y **Capacitaciones** tienen un **backend propio** (FastAPI +
-  Supabase / API). El frontend Streamlit funciona pero **necesita su backend
-  corriendo** para no dar errores. Hay que levantar ese backend como otro servicio
-  (no expuesto por el portal, solo interno). Pendiente de definir por app.
-- **Inspecciones** ya está **productiva y externa** en `https://inspecciones.americanad.ar`
-  (Streamlit con SQL Anywhere). El portal solo enlaza; no la hostea.
-
-## 3. Apps "próximamente" (otros stacks)
-
-Asistente (PHP), Campus/Moodle (Flask), Salud (Django) y ANMAT (.NET) figuran como
-tarjetas deshabilitadas en el menú. Cada una se integra aparte porque el subpath
-exige config propia del framework:
-
-- **Flask:** `APPLICATION_ROOT=/campus` + `ProxyFix`.
-- **Django:** `FORCE_SCRIPT_NAME=/salud` + `USE_X_FORWARDED_HOST`.
-- **PHP (php-fpm):** `location ~ \.php$` con `fastcgi_param SCRIPT_NAME`.
-- **.NET (Kestrel):** `UsePathBase("/anmat")`.
-
-Cuando se integre una, se agrega su `location` en `portal.nginx.conf` y se pasa su
-tarjeta de `estado:"off"` a `"dev"` en `site/index.html`.
-
-## Sumar una app nueva (resumen)
-
-1. Que corra con `--server.baseUrlPath=<path>` y un puerto libre.
-2. `location ^~ /<path>/` en `deploy/portal.nginx.conf` (hay plantilla al final).
-3. Tarjeta en el registro `APPS` de `site/index.html`.
-4. `git pull` en la VM + `sudo bash deploy/install.sh`.
-
-## HTTPS (opcional)
-
-```bash
-sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d portal.tudominio.com
-```
+| App | Subdominio | Estado |
+|---|---|---|
+| Cotizaciones | `cotizaciones.americanad.ar` | ✅ publicada |
+| RRHH | `rrhh.americanad.ar` | ✅ publicada |
+| Control de Flota | `flota.americanad.ar` | ✅ publicada |
+| Inspecciones | `inspecciones.americanad.ar` | ✅ publicada (Easypanel) |
+| Certificaciones | `certificaciones.americanad.ar` | 🛠 en desarrollo |
+| Informes Médicos | `informes.americanad.ar` | 🛠 en desarrollo |
+| Capacitaciones | `capacitaciones.americanad.ar` | 🛠 en desarrollo |
+| Asistente / Campus / Salud / ANMAT | — | ⏳ próximamente (otros stacks) |

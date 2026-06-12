@@ -62,7 +62,7 @@
 
   <main><div class="grid" id="grid"></div></main>
 
-  <!-- Para sumar una app: agregá una entrada al registro APPS (abajo) y su location en nginx. -->
+  <!-- Sumar una app: agregá una entrada al registro APPS (abajo) con su subdominio. -->
   <footer>
     <div class="isos">
       <img src="assets/iso9001.png"  alt="IRAM-ISO 9001 Gestión de la Calidad">
@@ -75,46 +75,51 @@
   <script>
     // ── Registro de aplicaciones ────────────────────────────────────────────
     // estado: "ok" (productiva) · "dev" (en desarrollo) · "off" (deshabilitada)
+    // Directorio de subdominios. Cada app vive en su propio <app>.americanad.ar.
+    // estado: "ok" = publicada (link activo) · "dev" = subdominio reservado, aún
+    // no publicada · "off" = otro stack, próximamente. Solo "ok" es clicable.
     const APPS = [
       { key:"cotizaciones",   name:"Cotizaciones",    desc:"Solicitudes, catálogo y precios",
-        icon:"💵", path:"/cotizaciones/",   accent:"#2884C7", estado:"dev" },
+        icon:"💵", url:"https://cotizaciones.americanad.ar/",    accent:"#2884C7", estado:"ok" },
       { key:"rrhh",           name:"RRHH",            desc:"Indicadores y gestión de personal",
-        icon:"🏢", path:"/rrhh/",           accent:"#216AA0", estado:"dev" },
+        icon:"🏢", url:"https://rrhh.americanad.ar/",            accent:"#216AA0", estado:"ok" },
       { key:"flota",          name:"Control de Flota",desc:"Disponibilidad y estado de vehículos",
-        icon:"🚚", path:"/flota/",          accent:"#1E7F8C", estado:"dev" },
-      { key:"certificaciones",name:"Certificaciones", desc:"Emisión y control de certificados",
-        icon:"📜", path:"/certificaciones/",accent:"#5B7BD5", estado:"dev" },
+        icon:"🚚", url:"https://flota.americanad.ar/",           accent:"#1E7F8C", estado:"ok" },
       { key:"inspecciones",   name:"Inspecciones",    desc:"Informes de inspección de equipos",
-        icon:"🔧", path:"https://inspecciones.americanad.ar/", accent:"#C2772B", estado:"ok", external:true },
-      { key:"informes",       name:"Informes Médicos",desc:"Estudios del centro médico (Mercedario)",
-        icon:"🩺", path:"/informes/",       accent:"#2E9E7A", estado:"dev" },
-      { key:"capacitaciones", name:"Capacitaciones",  desc:"Cursos y certificación profesional",
-        icon:"🎓", path:"/capacitaciones/", accent:"#216AA0", estado:"dev" },
+        icon:"🔧", url:"https://inspecciones.americanad.ar/",    accent:"#C2772B", estado:"ok" },
 
-      // ── Próximamente (otros stacks: PHP / Flask / Django / .NET) ──
-      { key:"asistente",      name:"Asistente",       desc:"Panel de administración (PHP)",
-        icon:"🤖", path:"/asistente/",      accent:"#6b7280", estado:"off" },
+      // En desarrollo (subdominio reservado, todavía no publicado)
+      { key:"certificaciones",name:"Certificaciones", desc:"Emisión y control de certificados",
+        icon:"📜", url:"https://certificaciones.americanad.ar/", accent:"#5B7BD5", estado:"dev" },
+      { key:"informes",       name:"Informes Médicos",desc:"Estudios del centro médico (Mercedario)",
+        icon:"🩺", url:"https://informes.americanad.ar/",        accent:"#2E9E7A", estado:"dev" },
+      { key:"capacitaciones", name:"Capacitaciones",  desc:"Cursos y certificación profesional",
+        icon:"🎓", url:"https://capacitaciones.americanad.ar/",  accent:"#216AA0", estado:"dev" },
+
+      // Próximamente (otros stacks: PHP / Flask / Django / .NET)
+      { key:"asistente",      name:"Asistente IA",    desc:"Widget en emicar y americanad",
+        icon:"🤖", url:"https://www.americanad.com.ar/",         accent:"#6b7280", estado:"off" },
       { key:"campus",         name:"Campus / Moodle", desc:"Plataforma de e-learning",
-        icon:"🏫", path:"/campus/",         accent:"#6b7280", estado:"off" },
+        icon:"🏫", url:"#", accent:"#6b7280", estado:"off" },
       { key:"salud",          name:"Salud (HIS)",     desc:"Sistema de información de salud",
-        icon:"🏥", path:"/salud/",          accent:"#6b7280", estado:"off" },
+        icon:"🏥", url:"#", accent:"#6b7280", estado:"off" },
       { key:"anmat",          name:"ANMAT / Trazamed",desc:"Trazabilidad de medicamentos",
-        icon:"💊", path:"/anmat/",          accent:"#6b7280", estado:"off" },
+        icon:"💊", url:"#", accent:"#6b7280", estado:"off" },
     ];
 
     const ETIQUETA = { ok: "Activa", dev: "En desarrollo", off: "Próximamente" };
 
     const grid = document.getElementById("grid");
     for (const app of APPS) {
-      const a = document.createElement("a");
-      a.className = "card" + (app.estado === "off" ? " disabled" : "");
-      a.href = app.path;
-      if (app.external) { a.target = "_blank"; a.rel = "noopener"; }
+      const live = app.estado === "ok";       // solo las publicadas son clicables
+      const a = document.createElement(live ? "a" : "div");
+      a.className = "card" + (live ? "" : " disabled");
+      if (live) { a.href = app.url; a.target = "_blank"; a.rel = "noopener"; }
       a.style.setProperty("--accent", app.accent || "#216AA0");
       a.innerHTML = `
         <span class="badge ${app.estado}">${ETIQUETA[app.estado] || ""}</span>
         <span class="ico">${app.icon}</span>
-        <div class="name">${app.name}${app.external ? ' <span class="ext">↗</span>' : ''}</div>
+        <div class="name">${app.name}${live ? ' <span class="ext">↗</span>' : ''}</div>
         <div class="desc">${app.desc}</div>`;
       grid.appendChild(a);
     }

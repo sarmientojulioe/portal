@@ -1,50 +1,51 @@
 # Portal de Aplicaciones — American Advisor
 
-Puerta de entrada única a las aplicaciones internas en desarrollo. Es un menú
-**estático** servido por nginx que rutea a cada app (Streamlit) bajo su subpath.
+Puerta de entrada única a las aplicaciones internas. Es un menú **estático**
+(servido por nginx en `portal.americanad.ar`) que funciona como **directorio**:
+cada app vive en su propio subdominio `<app>.americanad.ar` y el portal enlaza.
 
 ```
-http://<IP_o_dominio>/                 → menú
-http://<IP_o_dominio>/cotizaciones/    → Cotizaciones      (:8501)
-http://<IP_o_dominio>/rrhh/            → RRHH              (:8502)
-http://<IP_o_dominio>/flota/           → Control de Flota  (:8503)
-http://<IP_o_dominio>/certificaciones/ → Certificaciones   (:8504)
-https://inspecciones.americanad.ar     → Inspecciones      (externa)
-http://<IP_o_dominio>/informes/        → Informes Médicos  (:8506)
-http://<IP_o_dominio>/capacitaciones/  → Capacitaciones    (:8507)
+portal.americanad.ar
+ ├── Cotizaciones    → https://cotizaciones.americanad.ar   ✅
+ ├── RRHH            → https://rrhh.americanad.ar            ✅
+ ├── Control de Flota→ https://flota.americanad.ar           ✅
+ ├── Inspecciones    → https://inspecciones.americanad.ar    ✅
+ ├── Certificaciones → certificaciones.americanad.ar         🛠 en desarrollo
+ ├── Informes Médicos→ informes.americanad.ar                🛠 en desarrollo
+ └── Capacitaciones  → capacitaciones.americanad.ar          🛠 en desarrollo
 ```
 
-Próximamente (otros stacks, tarjetas deshabilitadas): Asistente (PHP),
-Campus/Moodle (Flask), Salud (Django), ANMAT/Trazamed (.NET).
-
-El mapa completo de puertos y el deploy por app está en
-[`deploy/README.md`](deploy/README.md).
+Próximamente (otros stacks): Asistente IA (widget en emicar/americanad), Campus
+/ Moodle (Flask), Salud / HIS (Django), ANMAT / Trazamed (.NET).
 
 ## Estructura
 
 ```
 PORTAL/
 ├── site/
-│   └── index.html          # menú (incluye el registro APPS, editable)
+│   ├── index.html              # menú (registro APPS editable)
+│   └── assets/                 # logo + certificaciones IRAM-ISO
+├── brand/ Manual de marca.pdf  # referencia
 └── deploy/
-    ├── portal.nginx.conf       # server block: raíz + proxys a cada app
-    ├── nginx-websocket-map.conf# map de websockets (Streamlit)
-    ├── install.sh              # instalador idempotente para la VM
-    └── README.md               # pasos de despliegue
+    ├── portal.nginx.conf       # server block del portal (sitio estático)
+    ├── template-subdominio.conf# plantilla para publicar una app en su subdominio
+    ├── install.sh              # instalador idempotente
+    └── README.md               # despliegue + patrón de subdominios
 ```
+
+## Modelo
+
+- **Una app = un subdominio** (`app.americanad.ar`), con su server block nginx y
+  su SSL (certbot). Es el patrón real de la infra.
+- El portal **solo enlaza** (no proxea). Sumar/activar una app = editar el
+  registro `APPS` de `site/index.html` y pasar su `estado` a `"ok"`.
+- Solo las tarjetas `estado:"ok"` son clicables; `dev`/`off` se muestran
+  deshabilitadas.
 
 ## Desarrollo local (Windows)
 
-Abrí `site/index.html` en el navegador. El registro de apps está embebido en el
-propio HTML (`const APPS = [...]`), así que el menú se ve sin levantar nada. Los
-links a `/cotizaciones/` y `/rrhh/` solo resuelven detrás de nginx en la VM.
-
-## Filosofía
-
-- **Una sola fuente de ruteo:** todo el nginx vive acá; cada app solo conoce su
-  propio servicio systemd y su puerto.
-- **Sumar una app = 2 ediciones acá** (una `location` y una tarjeta) + que la app
-  arranque con su `baseUrlPath`. Ver `deploy/README.md`.
+Abrí `site/index.html` en el navegador: el menú se ve sin levantar nada (el
+registro está embebido en el HTML).
 
 ## Deploy
 
