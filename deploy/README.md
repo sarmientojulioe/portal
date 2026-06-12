@@ -12,8 +12,9 @@ su propio puerto local y se publica bajo un subpath.
 | RRHH | `/rrhh/` | 8502 | Streamlit | en repo RRHH |
 | Control de Flota | `/flota/` | 8503 | Streamlit | `services/flota-app.service` |
 | Certificaciones | `/certificaciones/` | 8504 | Streamlit (+ backend) | `services/certificaciones-app.service` |
-| Inspecciones | `/inspecciones/` | 8505 | Streamlit | `services/inspecciones-app.service` |
+| Inspecciones | https://inspecciones.americanad.ar | — | Streamlit (externa) | la tarjeta enlaza al dominio; no se proxea |
 | Informes Médicos | `/informes/` | 8506 | Streamlit | `services/informes-app.service` |
+| ~~8505~~ | — | libre | — | (liberado al ser Inspecciones externa) |
 | Capacitaciones | `/capacitaciones/` | 8507 | Streamlit (+ FastAPI) | `services/capacitaciones-app.service` |
 | Asistente | `/asistente/` | — | PHP | *próximamente* |
 | Campus / Moodle | `/campus/` | — | Flask | *próximamente* |
@@ -59,7 +60,6 @@ Rutas/carpeta por app (ver cada `.service` para el detalle exacto):
 |---|---|---|---|
 | Flota | `/root/flota` | `/root/flota` | `requirements.txt` (raíz) |
 | Certificaciones | `/root/certificaciones` | `/root/certificaciones/frontend` | revisar `frontend/` o raíz |
-| Inspecciones | `/root/inspecciones` | `/root/inspecciones/inspecciones_american` | en esa carpeta |
 | Informes | `/root/informes` | `/root/informes/CENTRO MEDICO` | en esa carpeta |
 | Capacitaciones | `/root/capacitaciones` | `/root/capacitaciones/frontend` | `frontend/` |
 
@@ -69,8 +69,8 @@ Rutas/carpeta por app (ver cada `.service` para el detalle exacto):
   Supabase / API). El frontend Streamlit funciona pero **necesita su backend
   corriendo** para no dar errores. Hay que levantar ese backend como otro servicio
   (no expuesto por el portal, solo interno). Pendiente de definir por app.
-- **Inspecciones** usa **SQL Anywhere** (dbemicar12): requiere el driver/cliente en
-  la VM.
+- **Inspecciones** ya está **productiva y externa** en `https://inspecciones.americanad.ar`
+  (Streamlit con SQL Anywhere). El portal solo enlaza; no la hostea.
 
 ## 3. Apps "próximamente" (otros stacks)
 

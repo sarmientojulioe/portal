@@ -37,6 +37,7 @@
     a.card.disabled{opacity:.55; pointer-events:none; filter:grayscale(.3)}
     .ico{font-size:50px; line-height:1; display:block; margin-bottom:14px}
     .name{font-size:21px; font-weight:700}
+    .name .ext{font-size:13px; color:var(--muted); font-weight:600}
     .desc{font-size:13.5px; color:var(--muted); margin-top:6px}
     .badge{
       position:absolute; top:16px; right:16px; font-size:10.5px; font-weight:700;
@@ -84,7 +85,7 @@
       { key:"certificaciones",name:"Certificaciones", desc:"Emisión y control de certificados",
         icon:"📜", path:"/certificaciones/",accent:"#5B7BD5", estado:"dev" },
       { key:"inspecciones",   name:"Inspecciones",    desc:"Informes de inspección de equipos",
-        icon:"🔧", path:"/inspecciones/",   accent:"#C2772B", estado:"dev" },
+        icon:"🔧", path:"https://inspecciones.americanad.ar/", accent:"#C2772B", estado:"ok", external:true },
       { key:"informes",       name:"Informes Médicos",desc:"Estudios del centro médico (Mercedario)",
         icon:"🩺", path:"/informes/",       accent:"#2E9E7A", estado:"dev" },
       { key:"capacitaciones", name:"Capacitaciones",  desc:"Cursos y certificación profesional",
@@ -108,11 +109,12 @@
       const a = document.createElement("a");
       a.className = "card" + (app.estado === "off" ? " disabled" : "");
       a.href = app.path;
+      if (app.external) { a.target = "_blank"; a.rel = "noopener"; }
       a.style.setProperty("--accent", app.accent || "#216AA0");
       a.innerHTML = `
         <span class="badge ${app.estado}">${ETIQUETA[app.estado] || ""}</span>
         <span class="ico">${app.icon}</span>
-        <div class="name">${app.name}</div>
+        <div class="name">${app.name}${app.external ? ' <span class="ext">↗</span>' : ''}</div>
         <div class="desc">${app.desc}</div>`;
       grid.appendChild(a);
     }

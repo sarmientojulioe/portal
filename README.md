@@ -9,7 +9,7 @@ http://<IP_o_dominio>/cotizaciones/    → Cotizaciones      (:8501)
 http://<IP_o_dominio>/rrhh/            → RRHH              (:8502)
 http://<IP_o_dominio>/flota/           → Control de Flota  (:8503)
 http://<IP_o_dominio>/certificaciones/ → Certificaciones   (:8504)
-http://<IP_o_dominio>/inspecciones/    → Inspecciones      (:8505)
+https://inspecciones.americanad.ar     → Inspecciones      (externa)
 http://<IP_o_dominio>/informes/        → Informes Médicos  (:8506)
 http://<IP_o_dominio>/capacitaciones/  → Capacitaciones    (:8507)
 ```
