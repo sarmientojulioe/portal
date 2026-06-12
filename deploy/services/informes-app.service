@@ -1,0 +1,16 @@
+[Unit]
+Description=App Informes Mercedario / Centro Medico (Streamlit)
+After=network.target
+
+[Service]
+Type=simple
+# OJO: la carpeta "CENTRO MEDICO" tiene un espacio; en el unit el valor de
+# WorkingDirectory se toma literal (todo lo que sigue al '='), así que es válido.
+WorkingDirectory=/root/informes/CENTRO MEDICO
+ExecStart=/root/informes/.venv/bin/streamlit run app.py \
+  --server.address=127.0.0.1 --server.port=8506 --server.baseUrlPath=informes
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

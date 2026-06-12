@@ -4,10 +4,21 @@ Puerta de entrada única a las aplicaciones internas en desarrollo. Es un menú
 **estático** servido por nginx que rutea a cada app (Streamlit) bajo su subpath.
 
 ```
-http://<IP_o_dominio>/              → menú
-http://<IP_o_dominio>/cotizaciones/ → app Cotizaciones (:8501)
-http://<IP_o_dominio>/rrhh/         → app RRHH (:8502)
+http://<IP_o_dominio>/                 → menú
+http://<IP_o_dominio>/cotizaciones/    → Cotizaciones      (:8501)
+http://<IP_o_dominio>/rrhh/            → RRHH              (:8502)
+http://<IP_o_dominio>/flota/           → Control de Flota  (:8503)
+http://<IP_o_dominio>/certificaciones/ → Certificaciones   (:8504)
+http://<IP_o_dominio>/inspecciones/    → Inspecciones      (:8505)
+http://<IP_o_dominio>/informes/        → Informes Médicos  (:8506)
+http://<IP_o_dominio>/capacitaciones/  → Capacitaciones    (:8507)
 ```
+
+Próximamente (otros stacks, tarjetas deshabilitadas): Asistente (PHP),
+Campus/Moodle (Flask), Salud (Django), ANMAT/Trazamed (.NET).
+
+El mapa completo de puertos y el deploy por app está en
+[`deploy/README.md`](deploy/README.md).
 
 ## Estructura
 

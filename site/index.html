@@ -75,27 +75,33 @@
     // ── Registro de aplicaciones ────────────────────────────────────────────
     // estado: "ok" (productiva) · "dev" (en desarrollo) · "off" (deshabilitada)
     const APPS = [
-      {
-        key: "cotizaciones",
-        name: "Cotizaciones",
-        desc: "Solicitudes, catálogo y precios",
-        icon: "💵",
-        path: "/cotizaciones/",
-        accent: "#2884C7",
-        estado: "dev",
-      },
-      {
-        key: "rrhh",
-        name: "RRHH",
-        desc: "Indicadores y gestión de personal",
-        icon: "🏢",
-        path: "/rrhh/",
-        accent: "#216AA0",
-        estado: "dev",
-      },
+      { key:"cotizaciones",   name:"Cotizaciones",    desc:"Solicitudes, catálogo y precios",
+        icon:"💵", path:"/cotizaciones/",   accent:"#2884C7", estado:"dev" },
+      { key:"rrhh",           name:"RRHH",            desc:"Indicadores y gestión de personal",
+        icon:"🏢", path:"/rrhh/",           accent:"#216AA0", estado:"dev" },
+      { key:"flota",          name:"Control de Flota",desc:"Disponibilidad y estado de vehículos",
+        icon:"🚚", path:"/flota/",          accent:"#1E7F8C", estado:"dev" },
+      { key:"certificaciones",name:"Certificaciones", desc:"Emisión y control de certificados",
+        icon:"📜", path:"/certificaciones/",accent:"#5B7BD5", estado:"dev" },
+      { key:"inspecciones",   name:"Inspecciones",    desc:"Informes de inspección de equipos",
+        icon:"🔧", path:"/inspecciones/",   accent:"#C2772B", estado:"dev" },
+      { key:"informes",       name:"Informes Médicos",desc:"Estudios del centro médico (Mercedario)",
+        icon:"🩺", path:"/informes/",       accent:"#2E9E7A", estado:"dev" },
+      { key:"capacitaciones", name:"Capacitaciones",  desc:"Cursos y certificación profesional",
+        icon:"🎓", path:"/capacitaciones/", accent:"#216AA0", estado:"dev" },
+
+      // ── Próximamente (otros stacks: PHP / Flask / Django / .NET) ──
+      { key:"asistente",      name:"Asistente",       desc:"Panel de administración (PHP)",
+        icon:"🤖", path:"/asistente/",      accent:"#6b7280", estado:"off" },
+      { key:"campus",         name:"Campus / Moodle", desc:"Plataforma de e-learning",
+        icon:"🏫", path:"/campus/",         accent:"#6b7280", estado:"off" },
+      { key:"salud",          name:"Salud (HIS)",     desc:"Sistema de información de salud",
+        icon:"🏥", path:"/salud/",          accent:"#6b7280", estado:"off" },
+      { key:"anmat",          name:"ANMAT / Trazamed",desc:"Trazabilidad de medicamentos",
+        icon:"💊", path:"/anmat/",          accent:"#6b7280", estado:"off" },
     ];
 
-    const ETIQUETA = { ok: "Activa", dev: "En desarrollo", off: "Deshabilitada" };
+    const ETIQUETA = { ok: "Activa", dev: "En desarrollo", off: "Próximamente" };
 
     const grid = document.getElementById("grid");
     for (const app of APPS) {
