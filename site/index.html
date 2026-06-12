@@ -16,9 +16,10 @@
       display:flex; flex-direction:column;
     }
     header{
-      padding:48px 24px 8px; text-align:center;
+      padding:44px 24px 6px; text-align:center;
     }
-    header h1{margin:0; font-size:30px; font-weight:700; letter-spacing:.4px}
+    header .logo{height:62px; width:auto; margin-bottom:18px}
+    header h1{margin:0; font-size:26px; font-weight:700; letter-spacing:.4px}
     header .sub{margin-top:8px; color:var(--muted); font-size:15px}
     main{flex:1; display:flex; align-items:center; justify-content:center; padding:40px 24px}
     .grid{
@@ -44,18 +45,31 @@
     }
     .badge.dev{background:#FFF4E5; color:#B26A00}
     .badge.off{background:#F1F1F1; color:#888}
-    footer{padding:18px; text-align:center; color:var(--muted); font-size:12.5px}
+    footer{padding:28px 18px 36px; text-align:center; color:var(--muted)}
+    .isos{display:flex; gap:26px; align-items:center; justify-content:center;
+          flex-wrap:wrap; margin-bottom:14px}
+    .isos img{height:66px; width:auto; opacity:.92}
+    footer .copy{font-size:12.5px}
   </style>
 </head>
 <body>
   <header>
+    <img class="logo" src="assets/americanadvisor.png" alt="American Advisor">
     <h1>Portal de Aplicaciones</h1>
-    <div class="sub">American Advisor · entorno de desarrollo</div>
+    <div class="sub">Entorno de desarrollo</div>
   </header>
 
   <main><div class="grid" id="grid"></div></main>
 
-  <footer>Para sumar una app: editá el registro <code>APPS</code> en este archivo y agregá su <code>location</code> en nginx.</footer>
+  <!-- Para sumar una app: agregá una entrada al registro APPS (abajo) y su location en nginx. -->
+  <footer>
+    <div class="isos">
+      <img src="assets/iso9001.png"  alt="IRAM-ISO 9001 Gestión de la Calidad">
+      <img src="assets/iso14001.jpg" alt="IRAM-ISO 14001 Gestión Ambiental">
+      <img src="assets/iso45001.png" alt="IRAM-ISO 45001 Seguridad y Salud Ocupacional">
+    </div>
+    <div class="copy">© American Advisor · Sistemas de gestión certificados IRAM-ISO</div>
+  </footer>
 
   <script>
     // ── Registro de aplicaciones ────────────────────────────────────────────
